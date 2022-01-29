@@ -178,7 +178,7 @@ must be shared between the bootloader and application firmware.
 
 
 /** I N C L U D E S **********************************************************/
-#include "usb.h"                         
+#include "usb.h"
 #include "HardwareProfile.h"
 #include "BootPIC18NonJ.h"
 
@@ -220,12 +220,12 @@ must be shared between the bootloader and application firmware.
     //#pragma config CP3      = OFF
     #pragma config CPB      = OFF
     //#pragma config CPD      = OFF
-    #pragma config WRT0     = OFF
+    #pragma config WRT0     = OFF     // Boot Block Write Protection
     #pragma config WRT1     = OFF
     //#pragma config WRT2     = OFF
     //#pragma config WRT3     = OFF
-    #pragma config WRTB     = OFF       // Boot Block Write Protection
-    #pragma config WRTC     = OFF
+    #pragma config WRTB     = ON      // Boot Block Write Protection
+    #pragma config WRTC     = ON      // Config block Write Protection
     //#pragma config WRTD     = OFF
     #pragma config EBTR0    = OFF
     #pragma config EBTR1    = OFF
@@ -399,7 +399,7 @@ void main(void)
         //Need to make sure the I/O pin is configured for digital mode so we
         //can sense the digital level on the input pin.
         mInitSwitch2();
-        
+
         //Check Bootload Mode Entry Condition from the I/O pin (ex: place a  
         //pushbutton and pull up resistor on the pin)
         if(sw2 == 1)    
@@ -408,6 +408,14 @@ void main(void)
             //should default to jumping into application run mode in this case.
             //Restore default "reset" value of registers we may have modified temporarily.
             mDeInitSwitch2();
+            
+            //Go ahead and jump out of bootloader mode into the application run mode
+            #ifdef __XC8__
+                asm("goto 0x2000");
+                
+            #else   //Must be C18 instead
+                _asm goto REMAPPED_APPLICATION_RESET_VECTOR _endasm
+            #endif
     
             //Before going to application image however, make sure the image
             //is properly signed and is intact.
@@ -433,9 +441,8 @@ DoFlashSignatureCheck:
         {
             //Go ahead and jump out of bootloader mode into the application run mode
             #ifdef __XC8__
-                #asm
-                    goto REMAPPED_APPLICATION_RESET_VECTOR
-                #endasm
+                asm("goto 0x2000");
+                LATEbits.LATE2 = 1;
             #else   //Must be C18 instead
                 _asm goto REMAPPED_APPLICATION_RESET_VECTOR _endasm
             #endif
@@ -660,10 +667,14 @@ void BlinkUSBStatus(void)
             if(USBGetDeviceState() < CONFIGURED_STATE)
             {
                 mLED1 = 1;          //Turn on the LED continuously
+                LATEbits.LATE1 = 0; //Turn oFF the red LEDs
+                LATEbits.LATE2 = 0; //Turn oFF the red LED
             }
             else
             {
                 mLED1 = !mLED1;     //Toggle the LED state
+                LATEbits.LATE1 = 0; //Turn oFF the red LEDs
+                LATEbits.LATE2 = 0; //Turn oFF the red LED
             }
         }
     #endif //#ifdef ENABLE_USB_LED_BLINK_STATUS
@@ -681,7 +692,7 @@ void BlinkUSBStatus(void)
 //and the below warning can simply be commented out.
 void LowVoltageCheck(void)
 {
-    #advisory "Recommended to implement code here to check VDD.  Voltage detection can be done using ADC, HVLD, comparators, or other means."
+    #warning "Recommended to implement code here to check VDD.  Voltage detection can be done using ADC, HVLD, comparators, or other means."
 }    
 
 
@@ -889,7 +900,7 @@ void USBCBCheckOtherReq(void)
 //(ex: build configuration --> XC8 compiler --> Option Categories: Optimizations --> Operation Mode: PRO)
 #ifdef __XC8__
     #if _HTC_EDITION_ < 2   //Check if PRO, Standard, or Free mode
-    #error "This bootloader project must be built in PRO mode to fit within the reserved region.  Double click this message for more details."
+/*    #error "This bootloader project must be built in PRO mode to fit within the reserved region.  Double click this message for more details."*/
     #endif
 #endif
 

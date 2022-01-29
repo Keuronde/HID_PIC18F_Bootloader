@@ -27,7 +27,7 @@ void DisableUSBandExecuteLongDelay(void);
 
 
 //Vector remapping/absolute address constants
-#define REMAPPED_APPLICATION_RESET_VECTOR       0x1000
+#define REMAPPED_APPLICATION_RESET_VECTOR       0x2000
 //#define REMAPPED_APPLICATION_HIGH_ISR_VECTOR    0x1008        //See VectorRemap.asm
 //#define REMAPPED_APPLICATION_LOW_ISR_VECTOR     0x1018        //See VectorRemap.asm
 #define BOOTLOADER_ABSOLUTE_ENTRY_ADDRESS       0x001C  //Execute a "goto 0x001C" inline assembly instruction, if you want to enter the bootloader mode from the application via software

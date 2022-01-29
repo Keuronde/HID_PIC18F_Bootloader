@@ -102,13 +102,13 @@ bool DeviceIsSoftDetached;
  * - BDT data type is defined in usb_device.h
  *****************************************************************************/
 #ifdef __XC8__
-    #define BDT_ADDR_TAG    @BDT_ADDR
-    #define BDT_ADDR_TAG_EP0O_EVEN   @BDT_ADDR
+    #define BDT_ADDR_TAG    BDT_ADDR
+    #define BDT_ADDR_TAG_EP0O_EVEN   BDT_ADDR
     #define BDT_ADDR_TAG_EP0O_ODD    BDT_ADDR_TAG_EP0O_EVEN+4
     #define BDT_ADDR_TAG_EP0I   BDT_ADDR_TAG+8
     #define BDT_ADDR_TAG_EP1O   BDT_ADDR_TAG+12
     #define BDT_ADDR_TAG_EP1I   BDT_ADDR_TAG+16
-    #define USB_EP0_BUFF_ADDR   @USB_RAM_BUFF_ADDR
+    #define USB_EP0_BUFF_ADDR   USB_RAM_BUFF_ADDR
     #define USB_EP0_BUFF_ADDR2  USB_EP0_BUFF_ADDR+EP0_BUFF_SIZE
     #define USB_CTRL_TRF_DATA_ADDR USB_EP0_BUFF_ADDR2+EP0_BUFF_SIZE
     #if defined(USB_USE_HID)
@@ -136,14 +136,14 @@ bool DeviceIsSoftDetached;
 #endif
 
 #if(0 <= MAX_EP_NUMBER)
-volatile BDT ep0BoEven BDT_ADDR_TAG_EP0O_EVEN;         //Endpoint #0 BD Out EVEN
-volatile BDT ep0BoOdd BDT_ADDR_TAG_EP0O_ODD;          //Endpoint #0 BD Out ODD
-volatile BDT ep0Bi BDT_ADDR_TAG_EP0I;         //Endpoint #0 BD In
+volatile BDT ep0BoEven __at(BDT_ADDR_TAG_EP0O_EVEN);         //Endpoint #0 BD Out EVEN
+volatile BDT ep0BoOdd __at(BDT_ADDR_TAG_EP0O_ODD);          //Endpoint #0 BD Out ODD
+volatile BDT ep0Bi __at(BDT_ADDR_TAG_EP0I);         //Endpoint #0 BD In
 #endif
 
 #if(1 <= MAX_EP_NUMBER)
-volatile BDT ep1Bo BDT_ADDR_TAG_EP1O;         //Endpoint #1 BD Out
-volatile BDT ep1Bi BDT_ADDR_TAG_EP1I;         //Endpoint #1 BD In
+volatile BDT ep1Bo __at(BDT_ADDR_TAG_EP1O);         //Endpoint #1 BD Out
+volatile BDT ep1Bi __at(BDT_ADDR_TAG_EP1I);         //Endpoint #1 BD In
 #endif
 
 #if(2 <= MAX_EP_NUMBER)
@@ -220,17 +220,17 @@ volatile far BDT ep15Bi;        //Endpoint #15 BD In
  * Section B: EP0 endpoint data buffer space - must be located in USB module
  *            accessible RAM region
  *****************************************************************************/
-volatile uint8_t EP0OutEvenBuf[EP0_BUFF_SIZE] USB_EP0_BUFF_ADDR;
-volatile uint8_t EP0OutOddBuf[EP0_BUFF_SIZE] USB_EP0_BUFF_ADDR2;
-volatile CTRL_TRF_DATA CtrlTrfData USB_CTRL_TRF_DATA_ADDR;
+volatile uint8_t EP0OutEvenBuf[EP0_BUFF_SIZE] __at(USB_EP0_BUFF_ADDR);
+volatile uint8_t EP0OutOddBuf[EP0_BUFF_SIZE] __at(USB_EP0_BUFF_ADDR2);
+volatile CTRL_TRF_DATA CtrlTrfData __at(USB_CTRL_TRF_DATA_ADDR);
 
 /******************************************************************************
  * Section C: HID application interrupt endpoint buffers - must be located in
  *            USB module accessible RAM region
  *****************************************************************************/
 #if defined(USB_USE_HID)
-volatile unsigned char hid_report_out[HID_INT_OUT_EP_SIZE] USB_HID_BUFF_OUT_ADDR;
-volatile unsigned char hid_report_in[HID_INT_IN_EP_SIZE] USB_HID_BUFF_IN_ADDR;
+volatile unsigned char hid_report_out[HID_INT_OUT_EP_SIZE] __at(USB_HID_BUFF_OUT_ADDR);
+volatile unsigned char hid_report_in[HID_INT_IN_EP_SIZE] __at(USB_HID_BUFF_IN_ADDR);
 #endif
 
 #ifndef __XC8__

@@ -201,7 +201,7 @@ typedef union
         
         //This struct used for responding to QUERY_DEVICE command (on a device with four programmable sections)
         struct{
-            unsigned char Command;
+            unsigned char Command_QUERY_DEVICE;
             unsigned char PacketDataFieldSize;
             unsigned char BytesPerAddress;
             unsigned char Type1;
@@ -227,13 +227,13 @@ typedef union
         };  
         
         struct{                     //For UNLOCK_CONFIG command
-            unsigned char Command;
+            unsigned char Command_UNLOCK_CONFIG;
             unsigned char LockValue;
         };
         
         //Structure for the QUERY_EXTENDED_INFO command (and response)
         struct{
-            unsigned char Command;
+            unsigned char Command_QUERY_EXTENDED_INFO;
             unsigned int BootloaderVersion;
             unsigned int ApplicationVersion;
             unsigned long SignatureAddress;
@@ -627,9 +627,7 @@ void SignFlash(void)
         TABLAT = ProgrammingBuffer[i];
 
         #ifdef __XC8__
-            #asm
-                tblwt
-            #endasm
+            asm("tblwt");
         #else //must be C18 instead
             _asm tblwt _endasm
         #endif
@@ -645,9 +643,7 @@ void SignFlash(void)
         //Move ROM pointer back to next location
         pROM--;
         #ifdef __XC8__
-            #asm
-                tblrdpostdec
-            #endasm
+            asm("tblrdpostdec");
         #else //must be C18 instead
             _asm tblrdpostdec _endasm
         #endif
@@ -737,9 +733,7 @@ void WriteFlashBlock(void)      //Use to write blocks of data to flash.
             {
                 TABLAT = ProgrammingBuffer[BytesTakenFromBuffer];
                 #ifdef __XC8__
-                    #asm
-               			tblwtpostinc
-                    #endasm
+                    asm("tblwtpostinc");
                 #else //must be C18 instead
                     _asm tblwtpostinc _endasm
                 #endif
@@ -751,9 +745,7 @@ void WriteFlashBlock(void)      //Use to write blocks of data to flash.
             {
                 TABLAT = 0xFF;
                 #ifdef __XC8__
-                    #asm
-                        tblwtpostinc
-                    #endasm
+                    asm("tblwtpostinc");
                 #else //must be C18 instead
                     _asm tblwtpostinc _endasm
                 #endif
@@ -765,9 +757,7 @@ void WriteFlashBlock(void)      //Use to write blocks of data to flash.
         {
             TABLAT = 0xFF;
             #ifdef __XC8__
-                #asm
-                    tblwtpostinc
-                #endasm
+                asm("tblwtpostinc");
             #else //must be C18 instead
                 _asm tblwtpostinc _endasm
             #endif
@@ -777,9 +767,7 @@ void WriteFlashBlock(void)      //Use to write blocks of data to flash.
 
     //  TBLPTR--;               //Need to make table pointer point to the region which will be programmed before initiating the programming operation
     #ifdef __XC8__
-        #asm
-            tblrdpostdec
-        #endasm
+        asm("tblrdpostdec");
     #else //must be C18 instead
         _asm tblrdpostdec _endasm  //Do this instead of TBLPTR--; since it takes less code space.
     #endif
@@ -812,9 +800,7 @@ void WriteConfigBits(void)  //Also used to write the Device ID
     {
         TABLAT = PacketFromPC.Data[i+(REQUEST_DATA_BLOCK_SIZE-PacketFromPC.Size)];
         #ifdef __XC8__
-            #asm
-                tblwt
-            #endasm
+            asm("tblwt");
         #else //must be C18 instead
             _asm tblwt _endasm
         #endif
@@ -823,9 +809,7 @@ void WriteConfigBits(void)  //Also used to write the Device ID
         UnlockAndActivate(CORRECT_UNLOCK_KEY);
 
         #ifdef __XC8__
-            #asm
-                tblrdpostinc
-            #endasm
+            asm("tblrdpostinc");
         #else //must be C18 instead
             _asm tblrdpostinc _endasm
         #endif
@@ -918,9 +902,7 @@ void UnlockAndActivate(unsigned char UnlockKey)
 void TableReadPostIncrement(void)
 {
     #ifdef __XC8__
-        #asm
-            tblrdpostinc
-        #endasm
+        asm("tblrdpostinc");
     #else //must be C18 instead
         _asm tblrdpostinc _endasm
     #endif
